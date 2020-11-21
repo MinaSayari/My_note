@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">My_note</string>
+    <string name="app_name">My Note</string>
+    <string name="create_account">Create Account</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="email_address">Email Address</string>
+    <string name="username">Username</string>
+    <string name="sing_up_mode">Don`t have an account? Sign up.</string>
+    <string name="login_mode">Already have an account? Login.</string>
 </resources>

@@ -2,14 +2,20 @@ package ir.example.my_note;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.databinding.DataBindingUtil;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -22,74 +28,89 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
-import java.util.jar.Attributes;
+
+import ir.example.my_note.databinding.ActivityLoginBinding;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText Username;
-    private EditText Email;
-    private EditText Password;
-    private Button Login;
-    private Button CreAcc;
-
-    String txt_Username;
-    String txt_Email;
-    String txt_Password;
+    String username;
+    String email;
+    String password;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mRootRef;
+    private ActivityLoginBinding binding;
 
     ProgressDialog ProDia;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        Username = findViewById(R.id.Username);
-        Email = findViewById(R.id.Email);
-        Password = findViewById(R.id.Password);
-        Login = findViewById(R.id.btnLogin);
-        CreAcc = findViewById(R.id.btnCreat);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_login);
+        binding.loginActivityToolbar.toolbarSimpleBackImageButton.setVisibility(View.GONE);
+        binding.loginActivityToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.app_name));
         mAuth = FirebaseAuth.getInstance();
         mRootRef = FirebaseDatabase.getInstance().getReference();
         ProDia = new ProgressDialog(this);
 
 
-        Login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                txt_Username = Username.getText().toString();
-                txt_Email = Email.getText().toString();
-                txt_Password = Password.getText().toString();
+        binding.loginButton.setOnClickListener(v -> {
+            username = String.valueOf(binding.usernameEditText.getText());
+            email = String.valueOf(binding.emailEditText.getText());
+            password = String.valueOf(binding.passwordEditText.getText());
 
-                if (TextUtils.isEmpty(txt_Password) || TextUtils.isEmpty(txt_Email)) {
-                    Toast.makeText(LoginActivity.this ,"Username or Email or Password is empty!", Toast.LENGTH_SHORT).show();
-                } else {
-                    loginUser(txt_Email,txt_Password);
-                }
-            }
-
-        });
-
-        CreAcc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                txt_Username = Username.getText().toString();
-                txt_Email = Email.getText().toString();
-                txt_Password = Password.getText().toString();
-
-                if (TextUtils.isEmpty(txt_Username) || TextUtils.isEmpty(txt_Password) || TextUtils.isEmpty(txt_Email)) {
-                    Toast.makeText(LoginActivity.this ,"Username or Email or Password is empty!", Toast.LENGTH_SHORT).show();
-                } else if (txt_Password.length() < 5 ) {
-                    Toast.makeText(LoginActivity.this, "Password is too short.\nPassword must be 5 character or more than that.", Toast.LENGTH_SHORT).show();
-                } else {
-                    CreateAccount(txt_Username,txt_Email,txt_Password);
-                }
+            if (TextUtils.isEmpty(password) || TextUtils.isEmpty(email)) {
+                Toast.makeText(LoginActivity.this, "Username or Email or Password is empty!", Toast.LENGTH_LONG).show();
+            } else {
+                loginUser(email, password);
             }
         });
 
+        binding.createAccountButton.setOnClickListener(v -> {
+            username = String.valueOf(binding.usernameEditText.getText());
+            email = String.valueOf(binding.emailEditText.getText());
+            password = String.valueOf(binding.passwordEditText.getText());
+
+            if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password) || TextUtils.isEmpty(email)) {
+                Toast.makeText(LoginActivity.this, "Username or Email or Password is empty!", Toast.LENGTH_LONG).show();
+            } else if (password.length() < 5) {
+                Toast.makeText(LoginActivity.this, "Password is too short.\nPassword must be 5 character or more than that.", Toast.LENGTH_SHORT).show();
+            } else {
+                CreateAccount(username, email, password);
+            }
+        });
+
+        binding.changeModeLoginButton.setOnClickListener(v -> {
+            binding.usernameEditText.setVisibility(View.GONE);
+            binding.loginButton.setVisibility(View.VISIBLE);
+            binding.loginImageView.setVisibility(View.VISIBLE);
+            binding.changeModeSignUpButton.setVisibility(View.VISIBLE);
+
+            binding.signUpImageView.setVisibility(View.INVISIBLE);
+            binding.createAccountButton.setVisibility(View.GONE);
+            binding.changeModeLoginButton.setVisibility(View.INVISIBLE);
+        });
+        binding.changeModeSignUpButton.setOnClickListener(v -> {
+            binding.usernameEditText.setVisibility(View.VISIBLE);
+            binding.loginButton.setVisibility(View.GONE);
+            binding.loginImageView.setVisibility(View.INVISIBLE);
+            binding.changeModeSignUpButton.setVisibility(View.INVISIBLE);
+
+            binding.signUpImageView.setVisibility(View.VISIBLE);
+            binding.createAccountButton.setVisibility(View.VISIBLE);
+            binding.changeModeLoginButton.setVisibility(View.VISIBLE);
+        });
+
+        //chane Status Toolbar Background to White
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            Drawable background = getDrawable(R.drawable.blue_gradient); //bg_gradient is your gradient.
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(android.R.color.transparent));
+            window.setBackgroundDrawable(background);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
     }
 
     private void loginUser(String Email, String Password) {
@@ -97,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Login is Successful!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Login is Successful!", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
@@ -107,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(LoginActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -131,7 +152,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             ProDia.dismiss();
-                            Toast.makeText(LoginActivity.this,"Create Account is Successful!",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this,"Create Account is Successful!",Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(LoginActivity.this , MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
@@ -146,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Exception e) {
                 ProDia.dismiss();
-                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
