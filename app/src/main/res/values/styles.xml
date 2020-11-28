@@ -17,4 +17,9 @@
         <item name="android:layout_margin">32dp</item>
     </style>
 
+    <style name="MyCustomFontTextAppearance" parent="TextAppearance.AppCompat.Body1">
+        <item name="fontFamily">@font/vivaldii</item>
+        <item name="android:fontFamily">@font/vivaldii</item>
+    </style>
+
 </resources>
