@@ -1,6 +1,7 @@
 package ir.example.my_note;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
@@ -18,8 +19,12 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -61,6 +66,34 @@ public class AddEditActivity extends AppCompatActivity {
         pd.setMessage("Saving ...");
         pd.show();
 
+        String noteId = mRootRef.push().getKey();
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("noteId", noteId);
+        map.put("Title", Title);
+        map.put("Note", Note);
+        map.put("time", System.currentTimeMillis() + "." + (Title));
+        map.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
+
+        mRootRef.child("Note").setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    pd.dismiss();
+                    Toast.makeText(AddEditActivity.this,"Saving note is Successful!",Toast.LENGTH_LONG).show();
+                    startActivity(new Intent(AddEditActivity.this , MainActivity.class));
+                    finish();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                pd.dismiss();
+                Toast.makeText(AddEditActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+/*
         mRootRef.child("Note").setValue(Note).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -94,6 +127,8 @@ public class AddEditActivity extends AppCompatActivity {
             }
 
         });
+*/
+
 
     }
 
