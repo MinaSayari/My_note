@@ -8,4 +8,11 @@
     <string name="sing_up_mode">Don`t have an account? Sign up.</string>
     <string name="login_mode">Already have an account? Login.</string>
     <string name="submit">submit</string>
+    <string name="save">save</string>
+    <string name="listView">listView</string>
+    <string name="gridView">gridView</string>
+    <string name="setting">setting</string>
+    <string name="about_us">about</string>
+    <string name="add_note">Add New Note</string>
+    <string name="edit_note">Edit Note</string>
 </resources>

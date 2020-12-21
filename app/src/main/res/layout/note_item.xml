@@ -1,33 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginTop="5dp">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:orientation="vertical"
-        android:layout_centerVertical="true">
+        android:layout_margin="16dp"
+        app:cardElevation="6dp"
+        app:cardCornerRadius="12dp"
+        android:padding="8dp"
+        >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp"
+        >
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/noteTitle"
             android:text="Title"
             android:maxLines="1"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/design_default_color_primary_dark"/>
+            android:textColor="@color/design_default_color_primary_dark"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_margin="8dp"
+            android:gravity="left"
+            android:ellipsize="end"
+            />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/noteContent"
             android:text="Note"
-            android:maxLines="1" />
+            android:maxLines="1"
+            android:gravity="left"
+            app:layout_constraintTop_toBottomOf="@id/noteTitle"
+            android:layout_margin="8dp"
+            android:ellipsize="end"
+            />
 
-    </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/noteDate"
+            android:text="2 september"
+            android:maxLines="1"
+            app:layout_constraintTop_toBottomOf="@id/noteContent"
+            android:layout_margin="8dp"
+            />
 
-</RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

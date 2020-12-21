@@ -11,7 +11,18 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        tools:context=".MainActivity"
+        android:background="@drawable/light_gradient">
+
+
+        <include
+            android:id="@+id/mainToolbar"
+            layout="@layout/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
@@ -33,6 +44,7 @@
             android:id="@+id/recycler_view_note"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="58dp" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

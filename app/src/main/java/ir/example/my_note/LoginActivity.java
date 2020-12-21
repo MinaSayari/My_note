@@ -101,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
             binding.changeModeLoginButton.setVisibility(View.VISIBLE);
         });
 
-        //chane Status Toolbar Background to White
+        //chane Status Toolbar Background to gradient
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             Drawable background = getDrawable(R.drawable.blue_gradient); //bg_gradient is your gradient.
@@ -137,7 +137,6 @@ public class LoginActivity extends AppCompatActivity {
     private void CreateAccount(final String Username,final String Email, final String Password){
         ProDia.setMessage("Please Wait ...");
         ProDia.show();
-
         mAuth.createUserWithEmailAndPassword(Email, Password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {

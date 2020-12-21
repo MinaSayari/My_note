@@ -1,66 +1,82 @@
 package ir.example.my_note;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.databinding.DataBindingUtil;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.MultiAutoCompleteTextView;
-import android.widget.TextView;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 
+import ir.example.my_note.Model.Note;
+import ir.example.my_note.databinding.ActivityAddEditBinding;
+
 public class AddEditActivity extends AppCompatActivity {
-
-    private TextView save;
-    private EditText Title;
-    private EditText Note;
+    private ActivityAddEditBinding binding;
     private DatabaseReference mRootRef;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_edit);
-
-        save = findViewById(R.id.tvSave);
-        Title = findViewById(R.id.etTitle);
-        Note = findViewById(R.id.etNote);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_add_edit);
 
         mRootRef = FirebaseDatabase.getInstance().getReference();
 
-        save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String txt_Title = Title.getText().toString();
-                String txt_Note = Note.getText().toString();
+        Boolean editMode = getIntent().getBooleanExtra("EXTRA_Mode_Edit", false);
+        if (editMode){
+            binding.addNoteToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.add_note));
+        }
+        else{
+            binding.addNoteToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.edit_note));
+
+        }
+        binding.saveButton.setOnClickListener(v -> {
+            if (binding.etTitle.getText()==null || String.valueOf(binding.etTitle.getText()).equals("")){
+                Toast.makeText(AddEditActivity.this,"The title box cannot be Empty!",Toast.LENGTH_LONG).show();
+            }
+            else {
+                String txt_Title = binding.etTitle.getText().toString();
+                String txt_Note = String.valueOf(binding.etNote.getText());
                 upload(txt_Title,txt_Note);
             }
         });
 
+        binding.addNoteToolbar.toolbarSimpleBackImageButton.setOnClickListener(v -> {
+
+                if (binding.etTitle.getText()==null || String.valueOf(binding.etTitle.getText()).equals("")){
+                    finish();
+                }
+                else {
+                    String txt_Title = binding.etTitle.getText().toString();
+                    String txt_Note = String.valueOf(binding.etNote.getText());
+                    upload(txt_Title,txt_Note);
+                }
+        });
+
+
+        //chane Status Toolbar Background to gradient
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            Drawable background = getDrawable(R.drawable.blue_gradient); //bg_gradient is your gradient.
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(android.R.color.transparent));
+            window.setBackgroundDrawable(background);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
+
     }
 
 
-    private void upload(final String Title, final String Note) {
+    private void upload(final String title, final String note) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setMessage("Saving ...");
@@ -69,27 +85,22 @@ public class AddEditActivity extends AppCompatActivity {
         String noteId = mRootRef.push().getKey();
         HashMap<String, Object> map = new HashMap<>();
         map.put("noteId", noteId);
-        map.put("Title", Title);
-        map.put("Note", Note);
-        map.put("time", System.currentTimeMillis() + "." + (Title));
+        map.put("Title", title);
+        map.put("Note", note);
+        map.put("time", System.currentTimeMillis() + "." + (title));
         map.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Note myNote = new Note(title,note,noteId,String.valueOf(System.currentTimeMillis()),FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-        mRootRef.child("Note").setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    pd.dismiss();
-                    Toast.makeText(AddEditActivity.this,"Saving note is Successful!",Toast.LENGTH_LONG).show();
-                    startActivity(new Intent(AddEditActivity.this , MainActivity.class));
-                    finish();
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
+        mRootRef.child("Note").child(noteId).setValue(myNote).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
                 pd.dismiss();
-                Toast.makeText(AddEditActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddEditActivity.this,"Saving note is Successful!",Toast.LENGTH_LONG).show();
+                startActivity(new Intent(AddEditActivity.this , MainActivity.class));
+                finish();
             }
+        }).addOnFailureListener(e -> {
+            pd.dismiss();
+            Toast.makeText(AddEditActivity.this,e.getMessage(),Toast.LENGTH_SHORT).show();
         });
 
 

@@ -2,8 +2,8 @@ package ir.example.my_note.Model;
 
 public class Note {
 
-    private String Title;
-    private String Note;
+    private String title;
+    private String note;
     private String noteId;
     private String time;
     private String publisher;
@@ -14,8 +14,8 @@ public class Note {
 
    // Constructor
     public Note(String title, String note, String noteId, String time, String publisher) {
-        Title = title;
-        Note = note;
+        this.title = title;
+        this.note = note;
         this.noteId = noteId;
         this.time = time;
         this.publisher = publisher;
@@ -23,19 +23,19 @@ public class Note {
 
    // Getter & Setter
     public String getTitle() {
-        return Title;
+        return title;
     }
 
     public void setTitle(String title) {
-        Title = title;
+        this.title = title;
     }
 
     public String getNote() {
-        return Note;
+        return note;
     }
 
     public void setNote(String note) {
-        Note = note;
+        this.note = note;
     }
 
     public String getNoteId() {

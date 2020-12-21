@@ -30,10 +30,12 @@
 
                 <ImageButton
                     android:id="@+id/toolbarSimpleBackImageButton"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/hover_oval"
-                    app:srcCompat="@drawable/ic_black_back_24dp" />
+                    app:srcCompat="@drawable/ic_black_back_24dp"
+                    android:tint="@color/white"
+                    />
 
 
                 <TextView
@@ -46,7 +48,15 @@
                     android:textColor="@color/white"
                     />
 
-
+                <ImageButton
+                    android:id="@+id/toolbarSimpleMenuImageButton"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:background="@drawable/hover_oval"
+                    app:srcCompat="@drawable/ic_more"
+                    android:tint="@color/white"
+                    android:visibility="invisible"
+                    />
             </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
