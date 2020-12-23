@@ -29,15 +29,21 @@ public class AddEditActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_edit);
 
         mRootRef = FirebaseDatabase.getInstance().getReference();
-
-        Boolean editMode = getIntent().getBooleanExtra("EXTRA_Mode_Edit", false);
-        if (editMode){
+        String noteId = null;
+        boolean editMode = getIntent().getBooleanExtra("EXTRA_Mode_Edit", false);
+        if (! editMode){
             binding.addNoteToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.add_note));
         }
         else{
             binding.addNoteToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.edit_note));
-
+            String noteTitle = getIntent().getStringExtra("EXTRA_Note_Title");
+            String noteNote = getIntent().getStringExtra("EXTRA_Note_Note");
+            String noteTime = getIntent().getStringExtra("EXTRA_Note_Time");
+            noteId = getIntent().getStringExtra("EXTRA_Note_Id");
+            binding.etTitle.setText(noteTitle);
+            binding.etNote.setText(noteNote);
         }
+        String finalNoteId1 = noteId;
         binding.saveButton.setOnClickListener(v -> {
             if (binding.etTitle.getText()==null || String.valueOf(binding.etTitle.getText()).equals("")){
                 Toast.makeText(AddEditActivity.this,"The title box cannot be Empty!",Toast.LENGTH_LONG).show();
@@ -45,10 +51,11 @@ public class AddEditActivity extends AppCompatActivity {
             else {
                 String txt_Title = binding.etTitle.getText().toString();
                 String txt_Note = String.valueOf(binding.etNote.getText());
-                upload(txt_Title,txt_Note);
+                upload(txt_Title,txt_Note, finalNoteId1);
             }
         });
 
+        String finalNoteId = noteId;
         binding.addNoteToolbar.toolbarSimpleBackImageButton.setOnClickListener(v -> {
 
                 if (binding.etTitle.getText()==null || String.valueOf(binding.etTitle.getText()).equals("")){
@@ -57,7 +64,7 @@ public class AddEditActivity extends AppCompatActivity {
                 else {
                     String txt_Title = binding.etTitle.getText().toString();
                     String txt_Note = String.valueOf(binding.etNote.getText());
-                    upload(txt_Title,txt_Note);
+                    upload(txt_Title,txt_Note, finalNoteId);
                 }
         });
 
@@ -76,13 +83,14 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
 
-    private void upload(final String title, final String note) {
+    private void upload(final String title, final String note,final String id) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setMessage("Saving ...");
         pd.show();
-
-        String noteId = mRootRef.push().getKey();
+        String noteId = id;
+        if (id == null || id.equals(""))
+          noteId = mRootRef.push().getKey();
         HashMap<String, Object> map = new HashMap<>();
         map.put("noteId", noteId);
         map.put("Title", title);

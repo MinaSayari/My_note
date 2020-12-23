@@ -4,7 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/ic_about"
+    android:background="@drawable/about"
     tools:context=".AboutActivity">
 
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="اپلیکیشن مای نوت (دفترچه یادداشت من)"
+        android:textColor="#03409F"
+        android:layout_marginTop="305dp"
+        android:layout_marginEnd="90dp"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="یک دفترچه یادداشت همراه که محلی برای یادداشت و برنامه ریزیمی باشد، و با امکان لوگین (login) ورود شخصی و یا ساخت اکانت،نوشتن و ویرایش صدها یاداشت در برنامه که توسط تیم توسعه ما تهیه شده است . از طریق لوگین یادداشت های ذخیره شده قابل دسترسی هستتند. برای استفاده از این اپلیکیشن فیلترشکن یا پروکسی موبایل خود را روشن کنید ."
+        android:textColor="#ffffff"
+        android:layout_marginTop="340dp"
+        android:layout_marginEnd="90dp"
+        android:layout_marginStart="90dp"
+        android:justificationMode="inter_word"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="پروژه پایانی درس نرم افزار های موبایل 2"
+        android:textColor="#DC017F"
+        android:layout_marginTop="510dp"
+        android:layout_marginEnd="90dp"/>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="مهرناز واحدیان - مینا سیاری"
+        android:textColor="#FF3C00"
+        android:layout_marginTop="540dp"
+        android:layout_marginEnd="90dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

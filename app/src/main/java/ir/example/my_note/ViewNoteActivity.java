@@ -40,6 +40,9 @@ public class ViewNoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding= DataBindingUtil.setContentView(this,R.layout.activity_view_note);
 
+        binding.mainToolbar.toolbarSimpleBackImageButton.setOnClickListener( v ->  {
+                this.onBackPressed();
+        }); // Check Whats App
         String noteTitle = getIntent().getStringExtra("EXTRA_Note_Title");
         String noteNote = getIntent().getStringExtra("EXTRA_Note_Note");
         String noteTime = getIntent().getStringExtra("EXTRA_Note_Time");
@@ -58,7 +61,11 @@ public class ViewNoteActivity extends AppCompatActivity {
         binding.viewNoteActivityDeleteImageButton.setOnClickListener(v -> deleteNote(noteId));
         binding.viewNoteActivityEditImageButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewNoteActivity.this,AddEditActivity.class);
-            intent.putExtra("EXTRA_Mode_Edit", false);
+            intent.putExtra("EXTRA_Mode_Edit",true);
+            intent.putExtra("EXTRA_Note_Title", noteTitle);
+            intent.putExtra("EXTRA_Note_Note", noteNote);
+            intent.putExtra("EXTRA_Note_Time", noteTime);
+            intent.putExtra("EXTRA_Note_Id", noteId);
             startActivity(intent);
         });
 
