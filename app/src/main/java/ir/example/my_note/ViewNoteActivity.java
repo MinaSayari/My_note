@@ -1,6 +1,7 @@
 package ir.example.my_note;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
@@ -15,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -58,7 +60,16 @@ public class ViewNoteActivity extends AppCompatActivity {
         String shamsiDate = myJalaliDate.shamsiDate(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH) +1,calendar.get(Calendar.DAY_OF_MONTH));
         binding.viewNoteActivityDateTextView.setText(shamsiDate);
 
-        binding.viewNoteActivityDeleteImageButton.setOnClickListener(v -> deleteNote(noteId));
+        //Delete dialog
+        binding.viewNoteActivityDeleteImageButton.setOnClickListener(v ->{
+            MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(this);
+            dialog.setIcon(R.drawable.ic_delete);
+            dialog.setPositiveButton("yes",(dialog1, which) -> deleteNote(noteId));
+            dialog.setNegativeButton("No",(dialog1, which) -> dialog1.cancel());
+            dialog.setTitle("Delete Note");
+            dialog.setMessage("Are you sure?");
+            dialog.show();
+        });
         binding.viewNoteActivityEditImageButton.setOnClickListener(v -> {
             Intent intent = new Intent(ViewNoteActivity.this,AddEditActivity.class);
             intent.putExtra("EXTRA_Mode_Edit",true);
@@ -66,7 +77,9 @@ public class ViewNoteActivity extends AppCompatActivity {
             intent.putExtra("EXTRA_Note_Note", noteNote);
             intent.putExtra("EXTRA_Note_Time", noteTime);
             intent.putExtra("EXTRA_Note_Id", noteId);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+            finish();
         });
 
         //chane Status Toolbar Background to gradient
@@ -102,5 +115,12 @@ public class ViewNoteActivity extends AppCompatActivity {
                 Toast.makeText(ViewNoteActivity.this, "Error Deleting Note: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(this , MainActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        finish();
     }
 }

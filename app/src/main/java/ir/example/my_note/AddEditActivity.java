@@ -1,5 +1,6 @@
 package ir.example.my_note;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import android.app.ProgressDialog;
@@ -12,8 +13,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -29,21 +34,21 @@ public class AddEditActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_edit);
 
         mRootRef = FirebaseDatabase.getInstance().getReference();
-        String noteId = null;
+        String noteId = null,noteTitle = null,noteNote= null,noteTime = null;
         boolean editMode = getIntent().getBooleanExtra("EXTRA_Mode_Edit", false);
         if (! editMode){
             binding.addNoteToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.add_note));
         }
         else{
             binding.addNoteToolbar.toolbarSimpleTitleTextView.setText(getString(R.string.edit_note));
-            String noteTitle = getIntent().getStringExtra("EXTRA_Note_Title");
-            String noteNote = getIntent().getStringExtra("EXTRA_Note_Note");
-            String noteTime = getIntent().getStringExtra("EXTRA_Note_Time");
+            noteTitle = getIntent().getStringExtra("EXTRA_Note_Title");
+            noteNote = getIntent().getStringExtra("EXTRA_Note_Note");
+            noteTime = getIntent().getStringExtra("EXTRA_Note_Time");
             noteId = getIntent().getStringExtra("EXTRA_Note_Id");
             binding.etTitle.setText(noteTitle);
             binding.etNote.setText(noteNote);
         }
-        String finalNoteId1 = noteId;
+        String finalNoteId = noteId;
         binding.saveButton.setOnClickListener(v -> {
             if (binding.etTitle.getText()==null || String.valueOf(binding.etTitle.getText()).equals("")){
                 Toast.makeText(AddEditActivity.this,"The title box cannot be Empty!",Toast.LENGTH_LONG).show();
@@ -51,21 +56,39 @@ public class AddEditActivity extends AppCompatActivity {
             else {
                 String txt_Title = binding.etTitle.getText().toString();
                 String txt_Note = String.valueOf(binding.etNote.getText());
-                upload(txt_Title,txt_Note, finalNoteId1);
+                if (editMode)
+                     updateNote(txt_Title,txt_Note, finalNoteId);
+                else
+                    upload(txt_Title,txt_Note);
             }
         });
 
-        String finalNoteId = noteId;
+        String finalNoteTitle = noteTitle;
+        String finalNoteNote = noteNote;
+        String finalNoteTime = noteTime;
+        String finalNoteId1 = noteId;
         binding.addNoteToolbar.toolbarSimpleBackImageButton.setOnClickListener(v -> {
-
-                if (binding.etTitle.getText()==null || String.valueOf(binding.etTitle.getText()).equals("")){
+            if (editMode){
+                Intent intent = new Intent(AddEditActivity.this , ViewNoteActivity.class);
+                intent.putExtra("EXTRA_Note_Title", finalNoteTitle);
+                intent.putExtra("EXTRA_Note_Note", finalNoteNote);
+                intent.putExtra("EXTRA_Note_Time", finalNoteTime);
+                intent.putExtra("EXTRA_Note_Id", finalNoteId1);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+            else {
+                if (binding.etTitle.getText() == null || String.valueOf(binding.etTitle.getText()).equals("")) {
+                    startActivity(new Intent(AddEditActivity.this , MainActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                     finish();
-                }
-                else {
+                } else {
                     String txt_Title = binding.etTitle.getText().toString();
                     String txt_Note = String.valueOf(binding.etNote.getText());
-                    upload(txt_Title,txt_Note, finalNoteId);
+                    upload(txt_Title, txt_Note);
                 }
+            }
         });
 
 
@@ -83,14 +106,12 @@ public class AddEditActivity extends AppCompatActivity {
     }
 
 
-    private void upload(final String title, final String note,final String id) {
+    private void upload(final String title, final String note) {
 
         final ProgressDialog pd = new ProgressDialog(this);
         pd.setMessage("Saving ...");
         pd.show();
-        String noteId = id;
-        if (id == null || id.equals(""))
-          noteId = mRootRef.push().getKey();
+        String noteId = mRootRef.push().getKey();
         HashMap<String, Object> map = new HashMap<>();
         map.put("noteId", noteId);
         map.put("Title", title);
@@ -103,7 +124,8 @@ public class AddEditActivity extends AppCompatActivity {
             if(task.isSuccessful()){
                 pd.dismiss();
                 Toast.makeText(AddEditActivity.this,"Saving note is Successful!",Toast.LENGTH_LONG).show();
-                startActivity(new Intent(AddEditActivity.this , MainActivity.class));
+                startActivity(new Intent(AddEditActivity.this , MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
                 finish();
             }
         }).addOnFailureListener(e -> {
@@ -151,5 +173,42 @@ public class AddEditActivity extends AppCompatActivity {
 
     }
 
+    private void updateNote(final String title, final String note, final String noteId) {
 
+        final ProgressDialog pd = new ProgressDialog(this);
+        pd.setMessage("Saving ...");
+        pd.show();
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("noteId", noteId);
+        map.put("Title", title);
+        map.put("Note", note);
+        map.put("time", System.currentTimeMillis() + "." + (title));
+        map.put("publisher", FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Note myNote = new Note(title,note,noteId,String.valueOf(System.currentTimeMillis()),FirebaseAuth.getInstance().getCurrentUser().getUid());
+        Query update = mRootRef.child("Note").child(noteId);
+        update.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                snapshot.getRef().setValue(myNote);
+                Intent intent = new Intent(AddEditActivity.this , ViewNoteActivity.class);
+                intent.putExtra("EXTRA_Note_Title", myNote.getTitle());
+                intent.putExtra("EXTRA_Note_Note", myNote.getNote());
+                intent.putExtra("EXTRA_Note_Time", myNote.getTime());
+                intent.putExtra("EXTRA_Note_Id", myNote.getNoteId());
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(AddEditActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        binding.addNoteToolbar.toolbarSimpleBackImageButton.callOnClick();
+    }
 }

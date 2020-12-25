@@ -18,4 +18,10 @@
         android:title="@string/about_us"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
+    <item android:id="@+id/logoutItemMenu"
+        android:title="@string/logout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </menu>

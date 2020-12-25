@@ -29,19 +29,16 @@ public class SplashScreenActivity extends AppCompatActivity {
 
         binding = DataBindingUtil.setContentView(this,R.layout.activity_splash_screen);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (FirebaseAuth.getInstance().getCurrentUser() != null){
-                    startActivity(new Intent(SplashScreenActivity.this,MainActivity.class));
-                    finish();
-                }
-                else{
-                    startActivity(new Intent(SplashScreenActivity.this,LoginActivity.class));
-                }
+        new Handler().postDelayed(() -> {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null){
+                startActivity(new Intent(SplashScreenActivity.this,MainActivity.class));
+                finish();
             }
+            else{
+                startActivity(new Intent(SplashScreenActivity.this,LoginActivity.class));
+            }                finish();
 
-        },2000);
+        },4000);
 
         Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_up);
         animation.reset();

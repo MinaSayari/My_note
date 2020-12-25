@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.PopupMenu;
 import android.widget.Toast;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -52,7 +54,9 @@ ActivityMainBinding binding;
         binding.fab.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AddEditActivity.class);
             intent.putExtra("EXTRA_Mode_Edit", false);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+            finish();
         });
 
         binding.mainToolbar.toolbarSimpleMenuImageButton.setVisibility(View.VISIBLE);
@@ -63,6 +67,18 @@ ActivityMainBinding binding;
             popup.setOnMenuItemClickListener(item -> {
                if (item.getItemId()==R.id.aboutItemMenu){
                 startActivity(new Intent(MainActivity.this , AboutActivity.class));
+               }
+               else if (item.getItemId() == R.id.gridViewItemMenu){
+                  binding.recyclerViewNote.setLayoutManager(new GridLayoutManager(MainActivity.this,2));
+               }
+               else if (item.getItemId() == R.id.listViewItemMenu){
+                   binding.recyclerViewNote.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+               }
+               else if (item.getItemId() == R.id.logoutItemMenu){
+                   FirebaseAuth.getInstance().signOut();
+                   startActivity(new Intent(this , LoginActivity.class)
+                           .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                   finish();
                }
 
                 return true;
@@ -80,7 +96,9 @@ ActivityMainBinding binding;
             intent.putExtra("EXTRA_Note_Note", model.getNote());
             intent.putExtra("EXTRA_Note_Time", model.getTime());
             intent.putExtra("EXTRA_Note_Id", model.getNoteId());
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+            finish();
         });
         binding.recyclerViewNote.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerViewNote.setAdapter(noteAdapter);
@@ -98,6 +116,21 @@ ActivityMainBinding binding;
                 window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
     }
+
+
+    //Exit dialog
+    @Override
+    public void onBackPressed() {
+        MaterialAlertDialogBuilder dialog = new MaterialAlertDialogBuilder(this);
+        dialog.setIcon(R.drawable.ic_exit);
+        dialog.setPositiveButton("yes",(dialog1, which) -> finish());
+        dialog.setNegativeButton("No",(dialog1, which) -> dialog1.cancel());
+        dialog.setTitle("Close MyNote");
+        dialog.setMessage("Are you sure?");
+        dialog.show();
+    }
+
+
 
     private void showNote() {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Note");

@@ -15,4 +15,5 @@
     <string name="about_us">about</string>
     <string name="add_note">Add New Note</string>
     <string name="edit_note">Edit Note</string>
+    <string name="logout">Log out</string>
 </resources>
